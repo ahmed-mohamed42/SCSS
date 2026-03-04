@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Makos Tech Auth</title>
+
+        <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+                background: linear-gradient(135deg, #0f2722, #203a43, #2c5364);
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 0;
+            }
+
+            .container {
+                width: 420px;
+                background: #0d1b2a;
+                padding: 30px;
+                border-radius: 20px;
+                color: white;
+                position: relative;
+                max-height: 95vh;
+                overflow-y: auto;
+            }
+
+            .top-link {
+                position: absolute;
+                top: 15px;
+                left: 20px;
+                color: #00c6ff;
+                font-size: 14px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+
+            h1 {
+                text-align: center;
+                margin-top: 20px;
+            }
+
+            .subtitle {
+                text-align: center;
+                font-size: 14px;
+                color: #bbb;
+                margin-bottom: 20px;
+            }
+
+            input,
+            select,
+            textarea {
+                width: 100%;
+                padding: 12px;
+                border-radius: 12px;
+                border: none;
+                margin-bottom: 15px;
+                box-sizing: border-box;
+            }
+
+            textarea {
+                resize: none;
+                height: 70px;
+            }
+
+            input[type="submit"],
+            button {
+                width: calc(100% - 40px);
+                margin: 0 20px;
+                padding: 12px 0;
+                border: none;
+                border-radius: 12px;
+                background: linear-gradient(90deg, #00c6ff, #0072ff);
+                color: white;
+                cursor: pointer;
+            }
+
+            .link {
+                text-align: center;
+                margin-top: 10px;
+                font-size: 14px;
+                color: #00c6ff;
+                cursor: pointer;
+            }
+
+            .hidden {
+                display: none;
+            }
+
+            .modal {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.7);
+                justify-content: center;
+                align-items: center;
+            }
+
+            .modal-content {
+                background: #1b263b;
+                padding: 20px;
+                border-radius: 15px;
+                width: 300px;
+                color: white;
+            }
+
+            .close {
+                float: right;
+                cursor: pointer;
+                color: red;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div class="container">
+
+            <!-- LOGIN -->
+            <div id="loginBox">
+                <div class="top-link" onclick="showSignup()">SIGN UP</div>
+                <h1>Login</h1>
+                <div class="subtitle">Login to your account</div>
+
+                <form action="login.php" method="POST">
+    <input type="text" name="username" placeholder="Email or Mobile" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <input type="submit" value="Login">
+</form>
+ُ
+
+                <div class="link" onclick="openModal()">Forgot Password?</div>
+            </div>
+
+            <!-- SIGN UP -->
+            <div id="signupBox" class="hidden">
+                <div class="top-link" onclick="showLogin()">LOGIN</div>
+                <h1>Create Account</h1>
+                <div class="subtitle">Create your new account</div>
+
+               <!--  Create Account -->
+                <form id="signupForm" action="login.php" method="post" enctype="multipart/form-data">
+
+                    <input type="text" id="fullName" name="Full_Name" placeholder="Full Name" required>
+                    <input type="email" id="email"  name="Email" placeholder="Email" required>
+                    <input type="password" id="password"  name="Password" placeholder="Password" required>
+                    <input type="password" id="confirmPassword"  name="Confirm_Password" placeholder="Confirm Password" required>
+                    <input type="tel" id="phone"  name="Phone" placeholder="Phone Number" required>
+                    <input type="date" id="dob" name="dob" lang="en" required>
+                    <textarea id="address" name="Address" placeholder="Address" required></textarea>
+                    
+                    <input type="text" id="plate" name="Car_Plate" placeholder="Car Plate Number" required>
+
+                    <!-- Car Brand -->
+                    <select id="carType" name="car_type" onchange="updateModels()">
+                        <option value="">Select Car Brand</option>
+                        <option value="bmw">BMW</option>
+                        <option value="toyota">Toyota</option>
+                        <option value="mercedes">Mercedes</option>
+                    </select>
+
+                    <div class="link" onclick="showCustomBrand()">The Car is not there?</div>
+
+                    <input type="text" id="customBrand" name="custom_brand" placeholder="Enter Car Brand" class="hidden"
+                        oninput="autoDetectModels()">
+
+                    <!-- Car Model -->
+                    <select id="carModel" name="car_model">
+                        <option value="">Select Model</option>
+                    </select>
+                    
+                    <input type="text" id="customModel" name="custom_model" placeholder="Or Enter Model Manually" class="hidden">
+
+                   
+                    <input type="file" id="profilePic" name="img" accept="image/*" required>
+
+                    <input type="submit" value="Create Account">
+                </form>
+            </div>
+
+        </div>
+
+        <!-- Forgot Password -->
+        <div class="modal" id="forgotModal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">✖</span>
+                <h3>Reset Password</h3>
+                <input type="text" id="resetInput" placeholder="Enter your Email or Mobile">
+                <button onclick="resetPassword()">Reset</button>
+            </div>
+        </div>
+
+        <script>
+
+            function showSignup() {
+                document.getElementById("loginBox").classList.add("hidden");
+                document.getElementById("signupBox").classList.remove("hidden");
+            }
+
+            function showLogin() {
+                document.getElementById("signupBox").classList.add("hidden");
+                document.getElementById("loginBox").classList.remove("hidden");
+            }
+        //موديلات جاهزه
+    let models = {
+        bmw: ["X1", "X3", "X5", "M3", "M5"],
+        toyota: ["Corolla", "Camry", "Yaris", "Fortuner"],
+        mercedes: ["C180", "E200", "S500", "G63"],
+        kia: ["Cerato", "Sportage", "Rio"],
+        hyundai: ["Elantra", "Tucson", "Accent"]
+    };
+
+    function updateModels() {
+        let carType = document.getElementById("carType").value;
+        let carModel = document.getElementById("carModel");
+
+        carModel.innerHTML = '<option value="">Select Model</option>';
+
+        if (models[carType]) {
+            models[carType].forEach(function (model) {
+                let option = document.createElement("option");
+                option.value = model;
+                option.textContent = model;
+                carModel.appendChild(option);
+            });
+        }
+    }
+
+    function showCustomBrand() {
+        document.getElementById("customBrand").classList.remove("hidden");
+        document.getElementById("customModel").classList.remove("hidden");
+    }
+
+    function autoDetectModels() {
+        let brand = document.getElementById("customBrand").value.toLowerCase();
+        let carModel = document.getElementById("carModel");
+
+        carModel.innerHTML = '<option value="">Select Model</option>';
+
+        if (models[brand]) {
+            models[brand].forEach(function (model) {
+                let option = document.createElement("option");
+                option.value = model;
+                option.textContent = model;
+                carModel.appendChild(option);
+            });
+        }
+    }
+
+    // SIGN UP
+    /* document.getElementById("signupForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+ */
+    /*   let brand = carType.value || customBrand.value;
+        let model = carModel.value || customModel.value;
+
+        let params =
+            "?name=" + encodeURIComponent(fullName.value) +
+            "&email=" + encodeURIComponent(email.value) +
+            "&password=" + encodeURIComponent(password.value) +
+            "&phone=" + encodeURIComponent(phone.value) +
+            "&dob=" + encodeURIComponent(dob.value) +
+            "&address=" + encodeURIComponent(address.value) +
+            "&brand=" + encodeURIComponent(brand) +
+            "&model=" + encodeURIComponent(model) +
+            "&plate=" + encodeURIComponent(plate.value);
+
+        window.history.pushState({}, "", window.location.pathname + params); 
+    });*/
+
+    // LOGIN
+    /* document.getElementById("loginForm").addEventListener("submit", function (e) {
+        e.preventDefault(); */
+
+        /* let params =
+            "?loginInput=" + encodeURIComponent(loginInput.value) +
+            "&password=" + encodeURIComponent(loginPassword.value);
+
+        window.history.pushState({}, "", window.location.pathname + params); 
+    });*/
+
+    function openModal() {
+        document.getElementById("forgotModal").style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById("forgotModal").style.display = "none";
+    }
+
+    function resetPassword() {
+        let input = document.getElementById("resetInput").value;
+        window.history.pushState({}, "", window.location.pathname + "?reset=" + encodeURIComponent(input));
+        closeModal();
+    }
+
+</script>
+
+</body>
+
+</html>
